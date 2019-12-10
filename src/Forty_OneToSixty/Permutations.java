@@ -12,6 +12,7 @@ import java.util.List;
  */
 public class Permutations {
     //backtrack
+    //每次对数组不同数字递归剩下的n-1个数字
     public List<List<Integer>> permute(int[] nums) {
         List<List<Integer>> result = new ArrayList<>();
         if (nums.length <= 1){
