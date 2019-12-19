@@ -2,7 +2,7 @@ package Sixty_OneToEighty;
 /**
  * @author wub
  * LeetCode
- * 70.Sqrt(x)
+ * 69.Sqrt(x)
  * 计算x的平方根
  * x非负整数
  */
