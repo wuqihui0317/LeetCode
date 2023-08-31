@@ -1,7 +1,7 @@
 package forty_OneToSixty;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
+
 /**
  * @author wub
  * LeetCode
@@ -74,87 +74,60 @@ public class N_Queens {
     */
 
     //约束编程：在棋盘上放置一个皇后后，立即排除当前行、列、以及对角线
-    int[] position = null;//每列放置的位置
-    String str;
-    int[][] canPut = null;//约束矩阵，判断这个位置能否放置皇后，0为可以放置
-    public List<List<String>> solveNQueens(int n) {
-        canPut = new int[n][n];//约束矩阵，判断这个位置能否放置皇后
-        position = new int[n];
-        StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < n-1; i++) {
-            sb.append('.');
-        }
-        str = sb.toString();
-        return backtrack(0,n);
-    }
-    //回溯
-    List<List<String>> backtrack(int row,int n){
-        List<List<String>> result = new ArrayList<>();
-        //试图在该行0-n个位置分别放置
-        for (int i = 0; i < n; i++) {
-            if (canPut[row][i] == 0){
-                //到达最后一行，结束回溯
-                if (row == n-1){
-                    //生成字符串
-                    StringBuilder sb = new StringBuilder(str);
-                    sb.insert(i,'Q');
-                    List<String> list = new ArrayList<>();
-                    list.add(sb.toString());
-                    result.add(list);
-                    break;
-                }
-                setBound(row,i,n,1);
-                //回溯下一行
-                List<List<String>> temp = backtrack(row+1,n);
-                //回溯结束还原约束矩阵
-                setBound(row,i,n,-1);
-                if (temp.size() == 0)   continue;
-                //加入这次的字符串
-                StringBuilder sb = new StringBuilder(str);
-                sb.insert(i,'Q');//生成本次字符串
-                for (List<String> list:temp) {
-                    list.add(sb.toString());
-                    result.add(list);
-                }
-            }
+    int[][] canPut;
 
+    public List<List<String>> solveNQueens(int n) {
+        List<List<String>> result = new ArrayList<>(n);
+        if (n <= 0) {
+            return result;
         }
+        // 位置上能否放置
+        canPut = new int[n][n];
+        backtrack(result, n, 0);
         return result;
     }
-    void setBound(int row,int column,int n,int way){
-        int i = row+1;
-        int j = column+1;
-        //当前点右下方
-        while (i < n && j < n) {
-            canPut[i][j] += way;
-            i++;j++;
+
+    StringBuilder str = new StringBuilder();
+    private void backtrack(List<List<String>> result, int n, int i) {
+        if (i == n) {
+            // 放置完成所有皇后 添加result
+            List<String> list = new ArrayList<>(n);
+            for (int j = 0; j < n; j++) {
+                for (int k = 0; k < n; k++) {
+                    str.append(canPut[j][k] == 1 ? 'Q' : '.');
+                }
+                list.add(str.toString());
+                str.delete(0, n);
+            }
+            result.add(list);
+            return;
         }
-        i = row-1;j = column-1;
-        //当前点左上方
-        while (i>=0 && j >= 0){
-            canPut[i][j] += way;
-            i--;j--;
-        }
-        i = row+1;j = column-1;
-        //当前点右上方
-        while (i<n && j >= 0){
-            canPut[i][j] += way;
-            i++;j--;
-        }
-        i = row-1;j = column+1;
-        //当前点左下方
-        while (i>=0 && j<n){
-            canPut[i][j] += way;
-            i--;j++;
-        }
-        //当前点的上下
-        i = row;j = column;
-        for (int k = 0; k < n; k++) {
-            canPut[i][k] += way;
-            canPut[k][j] += way;
+        for (int j = 0; j < n; j++) {
+            if (canPut[i][j] == 0) {
+                // 可以放置，在当前位置放置q，并设置下面行无法到的位置
+                canPut[i][j] = 1;
+                setBound(i, j, n, -1);//放置限制
+                backtrack(result, n, i + 1);
+                canPut[i][j] = 0;
+                setBound(i, j, n, 1);//恢复限制
+            }
         }
     }
+
+    // 将i+1行设置放置限制/或者恢复限制
+    private void setBound(int i, int j, int n, int setVal) {
+        for (int k = i + 1; k < n; k++) {
+            canPut[k][j] += setVal;
+            if (j - (k - i) >= 0) {
+                canPut[k][j - (k - i)] += setVal;
+            }
+            if (j + k - i < n) {
+                canPut[k][j + (k - i)] += setVal;
+            }
+        }
+    }
+
     public static void main(String[] args) {
-        System.out.println(new N_Queens().solveNQueens(5));
+        System.out.println(new N_Queens().solveNQueens(4));
     }
 }
